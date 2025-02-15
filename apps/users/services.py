@@ -2,7 +2,7 @@
 import uuid
 from typing import Optional
 from django.contrib.auth import get_user_model
-from .models import User
+from apps.users.models import User
 
 class UserService:
     """

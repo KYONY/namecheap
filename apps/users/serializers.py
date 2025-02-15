@@ -1,39 +1,25 @@
 # apps/users/serializers.py
 from rest_framework import serializers
-from .models import User
+from django.contrib.auth import get_user_model
 
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('id', 'username', 'email', 'created_at', 'updated_at')
-#         read_only_fields = ('id', 'created_at', 'updated_at')
-#
-# class UserCreateSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(write_only=True)
-#
-#     class Meta:
-#         model = User
-#         fields = ('username', 'email', 'password')
-#
-#     def create(self, validated_data):
-#         return User.objects.create_user(**validated_data)
-
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User model with basic validation
+    """
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'created_at', 'updated_at')
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        fields = ('id', 'username', 'email', 'is_active', 'date_joined')
+        read_only_fields = ('id', 'date_joined')
 
     def to_representation(self, instance):
-        # Детальна діагностика
-        print(f"Serializing instance: {instance}")
-        print(f"Instance type: {type(instance)}")
-
+        """
+        Override to ensure proper data transformation and debugging
+        """
         try:
-            rep = super().to_representation(instance)
-            print(f"Serialized representation: {rep}")
-            return rep
+            data = super().to_representation(instance)
+            return data
         except Exception as e:
-            print(f"Serialization error: {e}")
+            print(f"Error serializing user {instance.username}: {str(e)}")
             raise

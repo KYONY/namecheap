@@ -62,7 +62,6 @@ class RedirectService:
         if redirect_rule.is_private and not request.user.is_authenticated:
             return None
 
-        # Increment click count within the transaction
         redirect_rule.increment_click_count()
 
         return redirect_rule.redirect_url
@@ -85,7 +84,6 @@ class RedirectService:
             id=redirect_id
         )
 
-        # Check if user has permission to update
         if redirect.created_by != user and not user.is_staff:
             return None
 
@@ -113,7 +111,6 @@ class RedirectService:
             id=redirect_id
         )
 
-        # Check if user has permission to delete
         if redirect.created_by != user and not user.is_staff:
             return False
 
@@ -145,7 +142,6 @@ class RedirectService:
         """
         redirect = get_object_or_404(RedirectRule, id=redirect_id)
 
-        # Return redirect if user has permission
         if redirect.created_by == user or not redirect.is_private or user.is_staff:
             return redirect
 
