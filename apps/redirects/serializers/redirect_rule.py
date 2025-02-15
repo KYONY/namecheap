@@ -23,15 +23,12 @@ class RedirectRuleSerializer(serializers.ModelSerializer):
         )
 
     def get_url(self, obj):
-        """
-        Get the full URL for the redirect
-        """
         request = self.context.get('request')
         if request is None:
             return None
 
-        path = f'redirect/{"private" if obj.is_private else "public"}/{obj.redirect_identifier}'
-        return request.build_absolute_uri(f'/{path}')
+        path = 'private' if obj.is_private else 'public'
+        return request.build_absolute_uri(f'/redirect/{path}/{obj.redirect_identifier}')
 
     def validate_redirect_url(self, value):
         """

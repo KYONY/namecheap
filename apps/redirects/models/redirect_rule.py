@@ -5,6 +5,8 @@ from django.conf import settings
 from django.core.validators import URLValidator
 from django.utils.translation import gettext_lazy as _
 
+from apps.redirects.services.identifier_generator import IdentifierGenerator
+
 
 class RedirectRule(models.Model):
     """
@@ -84,3 +86,15 @@ class RedirectRule(models.Model):
         """
         self.click_count += 1
         self.save(update_fields=['click_count'])
+
+    def save(self, *args, **kwargs):
+        """
+        Override save method to generate redirect identifier if not set
+        """
+        if not self.redirect_identifier:
+            generator = IdentifierGenerator()
+            existing_identifiers = set(
+                type(self).objects.values_list('redirect_identifier', flat=True)
+            )
+            self.redirect_identifier = generator.generate(existing_identifiers)
+        super().save(*args, **kwargs)

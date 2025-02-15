@@ -1,34 +1,33 @@
-# Use Python 3.11 slim image as the base
 FROM python:3.11-slim
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=on
 
-# Set work directory
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+    netcat-traditional \
+    curl \
+    libpq-dev \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir pipenv
 
-# Install pipenv
-RUN pip install --no-cache-dir pipenv
-
-# Copy Pipfile and Pipfile.lock
+# Install Python dependencies
 COPY Pipfile Pipfile.lock ./
-
-# Install project dependencies
-RUN pipenv install --system --deploy
+RUN pipenv install --system --deploy --dev
 
 # Copy project
 COPY . .
 
-# Add entrypoint script
-COPY ./entrypoint.sh /
-RUN chmod +x /entrypoint.sh
+# Copy and set up entrypoint script
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
-# Run entrypoint script
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]

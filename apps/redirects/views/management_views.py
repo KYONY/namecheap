@@ -15,6 +15,7 @@ class RedirectRuleViewSet(viewsets.ModelViewSet):
     """
     serializer_class = RedirectRuleSerializer
     permission_classes = [IsAuthenticated]
+    lookup_field = 'redirect_identifier'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

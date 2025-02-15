@@ -1,7 +1,7 @@
 # apps/redirects/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import RedirectRule
+from apps.redirects.models.redirect_rule import RedirectRule
 
 @admin.register(RedirectRule)
 class RedirectRuleAdmin(admin.ModelAdmin):
