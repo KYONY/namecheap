@@ -1,87 +1,148 @@
 # URL Shortener Service
 
-A Django-based URL shortening service with public and private redirect capabilities.
+Django-based URL shortening service with public and private redirect capabilities, JWT authentication, and comprehensive API.
 
 ## Features
 
-- JWT Authentication
+- JWT Authentication for API access
 - Public and private URL redirects
 - User management through Django admin
 - RESTful API for redirect rule management
-- Docker support
+- Docker containerization
+- Comprehensive test coverage
+- PostgreSQL database
 
-## Requirements
+## Technical Stack
 
-- Docker and Docker Compose
-- Python 3.8+
-- PostgreSQL
+- Python 3.10+
+- Django 5.1.6
+- Django REST Framework 3.15.2
+- PostgreSQL 15
+- JWT Authentication
+- Docker & Docker Compose
 
 ## Quick Start
 
-1. Clone the repository
-2. Run with Docker Compose:
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd redirect-service
+```
+
+2. For a working project create `.env` file with required environment variables:
+
+   (as this is a test project to save time .env is present )
+```env
+POSTGRES_NAME=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+DJANGO_SETTINGS_MODULE=redirect_service.settings.local
+SECRET_KEY=your-secret-key
+DEBUG=1
+```
+
+3. Build and run with Docker Compose:
 ```bash
 docker-compose up --build
 ```
 
-3. Create a superuser:
+4. Create a superuser:
 ```bash
 docker-compose exec web python manage.py createsuperuser
-```
-
-4. Get JWT token:
-```bash
-curl --request POST \
-  --url http://localhost:8000/api/token/ \
-  --data '{
-    "username": "your_username",
-    "password": "your_password"
-}'
 ```
 
 ## API Endpoints
 
 ### Authentication
-- POST /api/token/ - Obtain JWT token
-- POST /api/token/refresh/ - Refresh JWT token
+- `POST /api/token/` - Obtain JWT token
+- `POST /api/token/refresh/` - Refresh JWT token
 
-### Redirect Rules
-- GET /api/urls/ - List all redirect rules (authenticated)
-- POST /api/urls/ - Create new redirect rule (authenticated)
-- GET /api/urls/{id}/ - Retrieve redirect rule (authenticated)
-- PATCH /api/urls/{id}/ - Update redirect rule (authenticated, owner only)
-- DELETE /api/urls/{id}/ - Delete redirect rule (authenticated, owner only)
+### User Management
+- `GET /api/users/` - List users (admin sees all, users see only themselves)
 
-### Redirects
-- GET /redirect/public/{identifier}/ - Public redirect
-- GET /redirect/private/{identifier}/ - Private redirect (requires authentication)
+### Redirect Rules Management
+- `GET /api/redirects/url/` - List all redirect rules
+- `POST /api/redirects/url/` - Create new redirect rule
+- `GET /api/redirects/url/{identifier}/` - Get specific redirect rule
+- `PATCH /api/redirects/url/{identifier}/` - Update redirect rule
+- `DELETE /api/redirects/url/{identifier}/` - Delete redirect rule
 
-## Development
+### Redirect Endpoints
+- `GET /redirect/public/{identifier}/` - Public redirect
+- `GET /redirect/private/{identifier}/` - Private redirect (requires authentication)
 
-1. Install dependencies:
+## API Usage Examples
+
+### 1. Create New Redirect
 ```bash
-pipenv install
+curl -X POST \
+-H "Authorization: Bearer {your-jwt-token}" \
+-H "Content-Type: application/json" \
+-d '{
+    "redirect_url": "https://google.com",
+    "is_private": false
+}' \
+http://localhost:8000/api/redirects/url/
 ```
 
-2. Run migrations:
+### 2. List All Redirects
 ```bash
-python manage.py migrate
+curl -X GET \
+-H "Authorization: Bearer {your-jwt-token}" \
+http://localhost:8000/api/redirects/url/
 ```
 
-3. Run tests:
+### 3. Use Public Redirect
 ```bash
-python manage.py test
+curl -I http://localhost:8000/redirect/public/{identifier}
+```
+
+### 4. Use Private Redirect
+```bash
+curl -I \
+-H "Authorization: Bearer {your-jwt-token}" \
+http://localhost:8000/redirect/private/{identifier}
+```
+
+### 5. Update Redirect
+```bash
+curl -X PATCH \
+-H "Authorization: Bearer {your-jwt-token}" \
+-H "Content-Type: application/json" \
+-d '{
+    "is_private": true
+}' \
+http://localhost:8000/api/redirects/url/{identifier}
+```
+
+### 6. Delete Redirect
+```bash
+curl -X DELETE \
+-H "Authorization: Bearer {your-jwt-token}" \
+http://localhost:8000/api/redirects/url/{identifier}
 ```
 
 ## Project Structure
 
-The project is organized into several modules:
+```
+redirect_service/
+├── apps/
+│   ├── users/          # User management module
+│   └── redirects/      # URL shortening and redirect functionality
+├── redirect_service/   # Core project settings
+├── tests/             # Test suite
+└── docker-compose.yml
+```
 
-- `core/` - Main project settings and configuration
-- `users/` - User management and authentication
-- `redirects/` - URL shortening and redirect functionality
-- `tests/` - Unit tests
+## Testing
+
+Run the test suite:
+```bash
+docker-compose exec web pytest
+```
 
 ## License
 
-MIT License
+This project is licensed under the MIT License.
