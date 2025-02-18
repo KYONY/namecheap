@@ -9,7 +9,7 @@ class RedirectRuleAdmin(admin.ModelAdmin):
     Admin interface for RedirectRule model
     """
     list_display = ('redirect_identifier', 'get_redirect_url', 'created_by',
-                    'is_private', 'created', 'modified', 'is_active')
+                    'is_private', 'created', 'modified', 'is_active', 'click_count')
     list_filter = ('is_private', 'is_active', 'created')
     search_fields = ('redirect_identifier', 'redirect_url', 'created_by__username')
     readonly_fields = ('redirect_identifier', 'created', 'modified')
